@@ -7,6 +7,7 @@ import com.enviro.assessment.junoir.gift.enviro_assessment_junior.enums.Withdraw
 
 public interface WithdrawalNoticeRepo extends JpaRepository<WithdrawalNotice, String> {
     List<WithdrawalNotice> findByProductUserId(String userId);
+    List<WithdrawalNotice> findByProductIdAndProductUserId(String productId, String userId);
     
     // Spring Data JPA automatically casts the COUNT result to int/Integer
     Integer countByProductUserIdAndStatus(String userId, WithdrawalStatus status);

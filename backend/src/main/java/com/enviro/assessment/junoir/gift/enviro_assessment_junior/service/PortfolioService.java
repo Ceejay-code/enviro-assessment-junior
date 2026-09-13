@@ -1,8 +1,10 @@
 package com.enviro.assessment.junoir.gift.enviro_assessment_junior.service;
 
 import java.util.List;
+import java.util.Objects;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,7 +23,7 @@ import com.enviro.assessment.junoir.gift.enviro_assessment_junior.repos.Withdraw
 import java.util.stream.Collectors;
 
 @Service
-public class PortfolioService {
+public class PortfolioService implements SecurityContextService {
 
         private final UserRepo userRepository;
         private final ProductRepo productRepository;
@@ -38,7 +40,17 @@ public class PortfolioService {
         }
 
         @Transactional(readOnly = true)
-        public UserDto getInvestorPortfolio(String userId) {
+        public UserDto getAuthenticatedInvestorPortfolio() {
+                return getInvestorPortfolio(Objects.requireNonNull(getUser(userRepository).getId()));
+        }
+
+        @Transactional(readOnly = true)
+        public DashboardSummaryDto getAuthenticatedDashboardSummary() {
+                return getDashboardSummary(Objects.requireNonNull(getUser(userRepository).getId()));
+        }
+
+        @Transactional(readOnly = true)
+        public UserDto getInvestorPortfolio(@NonNull String userId) {
 
                 User user = userRepository.findById(userId)
                                 .orElseThrow(() -> new BaseException(
@@ -72,7 +84,7 @@ public class PortfolioService {
                 List<WithdrawalNotice> notices = withdrawalNoticeRepository.findByProductUserId(userId);
 
                 double totalValue = products.stream()
-                                .mapToDouble(Product::getBalance)
+                                .mapToDouble(product -> product.getBalance())
                                 .sum();
 
                 int totalNotices = (int) notices.stream()

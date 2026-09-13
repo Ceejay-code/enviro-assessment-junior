@@ -3,6 +3,7 @@ package com.enviro.assessment.junoir.gift.enviro_assessment_junior.service;
 import java.io.PrintWriter;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -51,6 +52,18 @@ public class WithdrawalService implements SecurityContextService {
                 Double balance = product.getBalance();
                 Double amount = request.getAmount();
 
+                if (balance == null || !Double.isFinite(balance) || balance < 0) {
+                        throw new BaseException(
+                                        "Product balance is invalid",
+                                        HttpStatus.INTERNAL_SERVER_ERROR);
+                }
+
+                if (amount == null || !Double.isFinite(amount) || amount <= 0) {
+                        throw new BaseException(
+                                        "Withdrawal amount must be greater than zero",
+                                        HttpStatus.BAD_REQUEST);
+                }
+
                 if (amount > balance) {
 
                         throw new BaseException(
@@ -79,7 +92,7 @@ public class WithdrawalService implements SecurityContextService {
                         productRepository.save(product);
                 }
 
-                WithdrawalNotice notice = WithdrawalNotice.builder()
+                WithdrawalNotice notice = Objects.requireNonNull(WithdrawalNotice.builder()
                                 .id(java.util.UUID.randomUUID().toString())
                                 .product(product)
                                 .amount(amount)
@@ -87,7 +100,7 @@ public class WithdrawalService implements SecurityContextService {
                                 .closingBalance(newBalance)
                                 .status(status)
                                 .createdAt(LocalDateTime.now())
-                                .build();
+                                .build());
 
                 return withdrawalNoticeRepository.save(notice);
         }
@@ -103,29 +116,33 @@ public class WithdrawalService implements SecurityContextService {
                                                 "Product not found or does not belong to the authenticated investor",
                                                 HttpStatus.NOT_FOUND));
 
-                return withdrawalNoticeRepository
-                                .findByProductUserId(product.getUser().getId());
+                return withdrawalNoticeRepository.findByProductIdAndProductUserId(
+                                product.getId(), user.getId());
         }
 
+        @Transactional(readOnly = true)
         public void exportCsv(PrintWriter writer) {
+                User user = getUser(userRepository);
 
-                List<WithdrawalNotice> notices = withdrawalNoticeRepository.findAll();
+                List<WithdrawalNotice> notices = withdrawalNoticeRepository.findByProductUserId(user.getId());
 
                 writer.println(
                                 "Notice ID,Product ID,Opening Balance,Amount Requested,Closing Balance,Status,Created At");
 
                 for (WithdrawalNotice notice : notices) {
 
-                        writer.println(
-                                        String.format(
-                                                        "%s,%s,%.2f,%.2f,%.2f,%s,%s",
-                                                        notice.getId(),
-                                                        notice.getProduct().getId(),
-                                                        notice.getOpeningBalance(),
-                                                        notice.getAmount(),
-                                                        notice.getClosingBalance(),
-                                                        notice.getStatus(),
-                                                        notice.getCreatedAt()));
+                        writer.printf("%s,%s,%.2f,%.2f,%.2f,%s,%s%n",
+                                        csvValue(notice.getId()),
+                                        csvValue(notice.getProduct().getId()),
+                                        notice.getOpeningBalance(),
+                                        notice.getAmount(),
+                                        notice.getClosingBalance(),
+                                        csvValue(notice.getStatus().name()),
+                                        csvValue(notice.getCreatedAt().toString()));
                 }
+        }
+
+        private String csvValue(String value) {
+                return "\"" + value.replace("\"", "\"\"") + "\"";
         }
 }

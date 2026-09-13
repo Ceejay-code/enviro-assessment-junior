@@ -3,6 +3,7 @@ package com.enviro.assessment.junoir.gift.enviro_assessment_junior.exceptions;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -37,5 +38,23 @@ public class GlobalExceptionHandler {
                 .build();
 
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<BaseReponseDto<Void>> handleAuthenticationException(AuthenticationException ex) {
+        BaseReponseDto<Void> response = BaseReponseDto.<Void>builder()
+                .message("Invalid username or password")
+                .build();
+
+        return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<BaseReponseDto<Void>> handleUnexpectedException(Exception ex) {
+        BaseReponseDto<Void> response = BaseReponseDto.<Void>builder()
+                .message("An unexpected server error occurred")
+                .build();
+
+        return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

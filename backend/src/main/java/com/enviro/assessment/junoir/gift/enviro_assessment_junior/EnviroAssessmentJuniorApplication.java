@@ -1,7 +1,7 @@
 package com.enviro.assessment.junoir.gift.enviro_assessment_junior;
 
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 import org.springframework.boot.CommandLineRunner;
@@ -86,11 +86,10 @@ public class EnviroAssessmentJuniorApplication {
                                         .role(UserRole.INVESTOR)
                                         .build();
 
-                        userRepo.saveAll(List.of(
-                                        sarah,
-                                        david,
-                                        thandi,
-                                        liam));
+                        userRepo.save(Objects.requireNonNull(sarah));
+                        userRepo.save(Objects.requireNonNull(david));
+                        userRepo.save(Objects.requireNonNull(thandi));
+                        userRepo.save(Objects.requireNonNull(liam));
 
                         /*
                          * ============================================================
@@ -138,12 +137,11 @@ public class EnviroAssessmentJuniorApplication {
                                         .user(liam)
                                         .build();
 
-                        productRepo.saveAll(List.of(
-                                        thandiRetirement,
-                                        thandiSavings,
-                                        sarahSavings,
-                                        davidRetirement,
-                                        liamSavings));
+                        productRepo.save(Objects.requireNonNull(thandiRetirement));
+                        productRepo.save(Objects.requireNonNull(thandiSavings));
+                        productRepo.save(Objects.requireNonNull(sarahSavings));
+                        productRepo.save(Objects.requireNonNull(davidRetirement));
+                        productRepo.save(Objects.requireNonNull(liamSavings));
 
                         /*
                          * ============================================================
@@ -161,7 +159,7 @@ public class EnviroAssessmentJuniorApplication {
                                         .createdAt(LocalDateTime.now().minusDays(1))
                                         .build();
 
-                        withdrawalNoticeRepo.saveAll(List.of(notice1));
+                        withdrawalNoticeRepo.save(Objects.requireNonNull(notice1));
 
                         /*
                          * ============================================================

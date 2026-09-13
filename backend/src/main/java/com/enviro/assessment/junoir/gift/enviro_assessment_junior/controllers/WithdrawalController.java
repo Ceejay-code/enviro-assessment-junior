@@ -49,16 +49,6 @@ public class WithdrawalController {
                                 .getWithdrawalsByProductForUser(
                                                 productId);
 
-                System.out.println("Withdrawal notices returned: " + notices.size());
-
-                for (WithdrawalNotice notice : notices) {
-                        System.out.println(
-                                        "Notice ID: " + notice.getId()
-                                                        + " | Product: " + notice.getProduct().getName()
-                                                        + " | Amount: " + notice.getAmount()
-                                                        + " | Status: " + notice.getStatus());
-                }
-
                 return ResponseEntity.ok(
                                 BaseReponseDto.<List<WithdrawalNotice>>builder()
                                                 .data(notices)

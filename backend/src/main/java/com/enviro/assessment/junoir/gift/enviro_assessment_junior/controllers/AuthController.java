@@ -9,8 +9,6 @@ import com.enviro.assessment.junoir.gift.enviro_assessment_junior.dto.AuthRespon
 import com.enviro.assessment.junoir.gift.enviro_assessment_junior.dto.BaseReponseDto;
 import com.enviro.assessment.junoir.gift.enviro_assessment_junior.service.AuthService;
 
-import java.util.concurrent.Callable;
-
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
@@ -22,14 +20,12 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public Callable<ResponseEntity<BaseReponseDto<AuthResponse>>> login(@Valid @RequestBody AuthRequest request) {
-        return () -> {
-            AuthResponse response = authService.authenticate(request);
-            return ResponseEntity.ok(
-                    BaseReponseDto.<AuthResponse>builder()
-                            .data(response)
-                            .message("Authentication successful")
-                            .build());
-        };
+    public ResponseEntity<BaseReponseDto<AuthResponse>> login(@Valid @RequestBody AuthRequest request) {
+        AuthResponse response = authService.authenticate(request);
+        return ResponseEntity.ok(
+                BaseReponseDto.<AuthResponse>builder()
+                        .data(response)
+                        .message("Authentication successful")
+                        .build());
     }
 }
